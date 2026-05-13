@@ -1,15 +1,22 @@
 <template>
   <aside class="sidebar">
     <div class="brand">
-      <div class="brand-mark">CF</div>
+      <div class="brand-mark"><i class="fa-solid fa-crab fa-xl"></i></div>
       <div>
-        <div class="brand-title">Crab Farm AI</div>
+        <div class="brand-title">AI Farm</div>
         <div class="brand-subtitle">Control Console</div>
       </div>
     </div>
     <nav>
-      <router-link v-for="item in items" :key="item.to" :to="item.to" exact-active-class="active">
-        <span class="nav-icon">{{ item.icon }}</span>
+      <router-link
+        v-for="item in items"
+        :key="item.to"
+        :to="item.to"
+        exact-active-class="active"
+      >
+        <span>
+          <i :class="item.icon" class="fa-xl"></i>
+        </span>
         <span>{{ item.label }}</span>
       </router-link>
     </nav>
@@ -18,25 +25,33 @@
 
 <script>
 export default {
-  name: 'Sidebar',
+  name: "Sidebar",
   data() {
     return {
       items: [
-        { to: '/', label: 'Dashboard', icon: 'D' },
-        { to: '/tanks', label: 'Tanks', icon: 'T' },
-        { to: '/scan-schedules', label: 'Scan Schedules', icon: 'S' },
-        { to: '/scan-jobs', label: 'Scan Jobs', icon: 'J' },
-        { to: '/devices', label: 'Devices', icon: 'I' },
-        { to: '/motion', label: 'Motion', icon: 'M' },
-        { to: '/camera', label: 'Camera', icon: 'C' },
-        { to: '/detections', label: 'Detections', icon: 'V' },
-        { to: '/harvest', label: 'Harvest', icon: 'H' },
-        { to: '/mqtt-logs', label: 'MQTT Logs', icon: 'L' },
-        { to: '/settings', label: 'Settings', icon: 'G' }
-      ]
-    }
-  }
-}
+        { to: "/", label: "Dashboard", icon: "fas fa-chart-line" },
+        { to: "/tanks", label: "Tanks", icon: "fas fa-water" },
+        {
+          to: "/scan-schedules",
+          label: "Scan Schedules",
+          icon: "fas fa-calendar-days",
+        },
+        { to: "/scan-jobs", label: "Scan Jobs", icon: "fas fa-list-check" },
+        { to: "/devices", label: "Devices", icon: "fas fa-microchip" },
+        { to: "/motion", label: "Motion", icon: "fas fa-up-down-left-right" },
+        { to: "/camera", label: "Camera", icon: "fas fa-camera" },
+        {
+          to: "/detections",
+          label: "Detections",
+          icon: "fas fa-magnifying-glass",
+        },
+        { to: "/harvest", label: "Harvest", icon: "fas fa-basket-shopping" },
+        { to: "/mqtt-logs", label: "MQTT Logs", icon: "fas fa-terminal" },
+        { to: "/settings", label: "Settings", icon: "fas fa-gear" },
+      ],
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -110,9 +125,10 @@ a.active {
   border-radius: 4px;
   display: inline-flex;
   font-size: 11px;
-  height: 22px;
+  /* height: 22px; */
   justify-content: center;
-  width: 22px;
+  /* width: 22px; */
+  padding: 4px;
 }
 
 @media (max-width: 992px) {

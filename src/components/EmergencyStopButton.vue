@@ -1,6 +1,6 @@
 <template>
   <b-button variant="danger" class="emergency-btn" :disabled="busy || !canOperate" @click="stop">
-    Emergency Stop
+    <i class="fa-solid fa-circle-exclamation fa-lg"></i> Emergency Stop
   </b-button>
 </template>
 

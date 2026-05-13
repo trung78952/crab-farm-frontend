@@ -4,7 +4,7 @@ const tokenKey = 'crab_farm_access_token'
 const userKey = 'crab_farm_user'
 
 const api = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL || 'http://localhost:8000',
+  baseURL: process.env.VUE_APP_API_BASE_URL || '',
   timeout: 15000
 })
 

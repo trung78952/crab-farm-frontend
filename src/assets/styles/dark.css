@@ -74,3 +74,9 @@
   border-color: #ccd3de;
   color: #1f2430;
 }
+.table-hover tbody tr:hover {
+  color: unset;
+}
+.dropdown-item{
+  color: unset;
+}

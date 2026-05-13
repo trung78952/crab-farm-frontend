@@ -4,63 +4,77 @@
       <div class="app-title">Crab Farm AI</div>
       <div class="status-line">
         <span :class="['status-dot', serverOk ? 'ok' : 'danger']" />
-        Server {{ serverOk ? 'online' : 'offline' }}
+        Server {{ serverOk ? "online" : "offline" }}
         <span class="mx-2">/</span>
-        MQTT {{ mqttConnected ? 'connected' : 'unknown' }}
+        MQTT {{ mqttConnected ? "connected" : "unknown" }}
       </div>
     </div>
     <div class="top-actions">
       <EmergencyStopButton />
-      <b-button size="sm" variant="outline-light" @click="$store.dispatch('toggleDarkMode')">
+      <!-- <b-button size="sm" variant="outline-light" @click="$store.dispatch('toggleDarkMode')">
         {{ darkMode ? 'Dark' : 'Light' }}
-      </b-button>
-      <span class="user-pill">{{ userLabel }}</span>
-      <b-button size="sm" variant="outline-light" @click="logout">Logout</b-button>
+      </b-button> -->
+      <!-- <span class="user-pill">{{ userLabel }}</span> -->
+      <b-dropdown variant="outline-light">
+        <template #button-content>
+          <span >
+            <i class="fa-solid fa-user"></i>
+          </span>
+          {{ userLabel }}
+        </template>
+        <b-dropdown-item @click="logout"
+          ><i class="fa-solid fa-arrow-left-from-bracket"></i>
+          Logout</b-dropdown-item
+        >
+      </b-dropdown>
+      <!-- <b-button size="sm" variant="outline-light" @click="logout">
+        Logout
+      </b-button> -->
     </div>
   </header>
 </template>
 
 <script>
-import api from '../api/axios'
-import EmergencyStopButton from './EmergencyStopButton.vue'
+import api from "../api/axios";
+import EmergencyStopButton from "./EmergencyStopButton.vue";
 
 export default {
-  name: 'Topbar',
+  name: "Topbar",
   components: { EmergencyStopButton },
   data() {
     return {
       serverOk: false,
-      mqttConnected: false
-    }
+      mqttConnected: false,
+    };
   },
   computed: {
     darkMode() {
-      return this.$store.state.darkMode
+      return this.$store.state.darkMode;
     },
     userLabel() {
-      const user = this.$store.getters.currentUser
-      return user ? `${user.username} / ${user.role}` : 'anonymous'
-    }
+      const user = this.$store.getters.currentUser;
+      return user ? `${user.username} / ${user.role}` : "anonymous";
+    },
   },
   created() {
-    this.loadHealth()
+    this.loadHealth();
   },
   methods: {
     async loadHealth() {
       try {
-        const res = await api.get('/health')
-        this.serverOk = res.data.status === 'ok'
-        this.mqttConnected = Boolean(res.data.mqtt_connected)
+        const res = await api.get("/health");
+        this.serverOk = res.data.status === "ok";
+        this.mqttConnected = Boolean(res.data.mqtt_connected);
       } catch (err) {
-        this.serverOk = false
+        this.serverOk = false;
       }
     },
     logout() {
-      this.$store.dispatch('logout')
-      this.$router.push({ name: 'login' })
-    }
-  }
-}
+      this.$store.dispatch("logout");
+      this.$router.push({ name: "login" });
+    },
+  },
+};
 </script>
 
 <style scoped>

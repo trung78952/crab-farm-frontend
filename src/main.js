@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import "./assets/icon/fontawesome-pro-6.6.0-web/css/all.css"
 import './assets/styles/main.css'
 import './assets/styles/dark.css'
 import App from './App.vue'
