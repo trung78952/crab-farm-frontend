@@ -1,0 +1,76 @@
+.bg-app {
+  background: #181a22;
+}
+
+.text-muted {
+  color: #9aa0ad !important;
+}
+
+.card,
+.modal-content,
+.dropdown-menu {
+  background: #24262f;
+  border-color: #3a3d46;
+  color: #d7dae3;
+}
+
+.form-control,
+.custom-select,
+.input-group-text {
+  background: #181a22;
+  border-color: #3a3d46;
+  color: #d7dae3;
+}
+
+.form-control:focus,
+.custom-select:focus {
+  background: #181a22;
+  border-color: #44d7cf;
+  color: #fff;
+  box-shadow: 0 0 0 0.15rem rgba(68, 215, 207, 0.2);
+}
+
+.btn-primary {
+  background: #2dbab4;
+  border-color: #2dbab4;
+}
+
+.btn-primary:hover {
+  background: #38d5ce;
+  border-color: #38d5ce;
+}
+
+.btn-outline-light {
+  border-color: #565b68;
+  color: #d7dae3;
+}
+
+.light-mode {
+  background: #f4f6f8;
+  color: #1f2430;
+}
+
+.light-mode .main-panel,
+.light-mode .bg-app {
+  background: #f4f6f8;
+}
+
+.light-mode .panel,
+.light-mode .card,
+.light-mode .modal-content {
+  background: #fff;
+  border-color: #d8dde6;
+  color: #1f2430;
+}
+
+.light-mode .panel-header {
+  background: #edf1f6;
+  border-color: #d8dde6;
+}
+
+.light-mode .form-control,
+.light-mode .custom-select {
+  background: #fff;
+  border-color: #ccd3de;
+  color: #1f2430;
+}

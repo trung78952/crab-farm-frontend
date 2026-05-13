@@ -1,0 +1,102 @@
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  background: #181a22;
+  color: #d7dae3;
+  font-size: 14px;
+}
+
+a {
+  color: #44d7cf;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.main-panel {
+  margin-left: 240px;
+  min-height: 100vh;
+  background: #181a22;
+}
+
+.page-content {
+  padding: 18px;
+}
+
+.panel {
+  background: #24262f;
+  border: 1px solid #3a3d46;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.panel-header {
+  background: #2f3138;
+  border-bottom: 1px solid #3a3d46;
+  padding: 10px 14px;
+  font-weight: 600;
+}
+
+.panel-body {
+  padding: 14px;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 6px;
+  background: #7b8191;
+}
+
+.status-dot.ok {
+  background: #44d7cf;
+}
+
+.status-dot.warn {
+  background: #f6c65b;
+}
+
+.status-dot.danger {
+  background: #ff5b62;
+}
+
+.console-panel {
+  background: #101219;
+  border: 1px solid #3a3d46;
+  border-radius: 6px;
+  color: #92f6df;
+  font-family: Consolas, Monaco, monospace;
+  font-size: 12px;
+  max-height: 260px;
+  overflow: auto;
+  padding: 12px;
+  white-space: pre-wrap;
+}
+
+.table-darkish {
+  color: #d7dae3;
+}
+
+.table-darkish th,
+.table-darkish td {
+  border-color: #3a3d46 !important;
+  vertical-align: middle;
+}
+
+.badge-soft {
+  background: rgba(68, 215, 207, 0.14);
+  color: #72eee6;
+}
+
+@media (max-width: 992px) {
+  .main-panel {
+    margin-left: 0;
+  }
+}
