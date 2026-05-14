@@ -20,7 +20,7 @@ export default {
   data() {
     return {
       devices: [],
-      fields: ['code', 'type', 'name', 'status', 'last_seen_at', { key: 'payload', label: 'metadata' }]
+      fields: ['shelf_id', 'code', 'type', 'name', 'status', 'last_seen_at', { key: 'payload', label: 'metadata' }]
     }
   },
   created() { this.load() },

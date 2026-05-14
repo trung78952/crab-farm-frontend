@@ -4,7 +4,7 @@
       small
       hover
       :items="items"
-      :fields="fields"
+      :fields="formattedFields"
       :busy="busy"
       class="table-darkish mb-0"
       tbody-tr-class="table-row"
@@ -24,12 +24,28 @@
 </template>
 
 <script>
+import { formatDateTime, isDateTimeField } from '../utils/dateTime'
+
 export default {
   name: 'DataTable',
   props: {
     items: { type: Array, default: () => [] },
     fields: { type: Array, required: true },
     busy: { type: Boolean, default: false }
+  },
+  computed: {
+    formattedFields() {
+      return this.fields.map((field) => {
+        const normalizedField =
+          typeof field === 'string' ? { key: field } : { ...field }
+
+        if (!normalizedField.formatter && isDateTimeField(normalizedField.key)) {
+          normalizedField.formatter = (value) => formatDateTime(value)
+        }
+
+        return normalizedField
+      })
+    }
   }
 }
 </script>

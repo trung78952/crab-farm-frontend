@@ -5,15 +5,18 @@
       <div class="panel-body">
         <b-form @submit.prevent="create">
           <b-form-row>
+            <b-col md="3"><b-form-group label="Shelf"><b-form-select v-model="form.shelf_id" :options="shelfOptions" /></b-form-group></b-col>
             <b-col md="4"><b-form-group label="Name"><b-form-input v-model="form.name" required /></b-form-group></b-col>
             <b-col md="2"><b-form-group label="Interval minutes"><b-form-input v-model.number="form.interval_minutes" type="number" min="1" required /></b-form-group></b-col>
             <b-col md="3">
               <b-form-group label="Scan mode">
-                <b-form-select v-model="form.scan_mode" :options="['all_tanks', 'selected_tanks']" />
+                <b-form-select v-model="form.scan_mode" :options="['all_tanks', 'selected_tanks', 'single_shelf']" />
               </b-form-group>
             </b-col>
             <b-col md="3"><b-form-group label="Selected tank ids"><b-form-input v-model="tankIdsText" placeholder="uuid, uuid" /></b-form-group></b-col>
+            <b-col md="2"><b-form-group label="Priority"><b-form-input v-model.number="form.priority" type="number" min="0" /></b-form-group></b-col>
           </b-form-row>
+          <div class="text-muted small mb-2">Schedules enqueue scan jobs. Jobs are serialized per shelf and never run motion in parallel on the same shelf.</div>
           <b-button type="submit" variant="primary">Create Schedule</b-button>
         </b-form>
       </div>
@@ -37,6 +40,7 @@
 <script>
 import DataTable from '../components/DataTable.vue'
 import scansApi from '../api/scans'
+import shelvesApi from '../api/shelves'
 
 export default {
   name: 'ScanSchedules',
@@ -44,15 +48,23 @@ export default {
   data() {
     return {
       schedules: [],
+      shelves: [],
       tankIdsText: '',
-      form: { name: '', interval_minutes: 120, scan_mode: 'all_tanks', is_active: true },
-      fields: ['name', 'interval_minutes', 'scan_mode', 'is_active', 'last_run_at', 'next_run_at', 'actions']
+      form: { shelf_id: null, name: '', interval_minutes: 120, scan_mode: 'all_tanks', is_active: true, priority: 100 },
+      fields: ['shelf_id', 'name', 'interval_minutes', 'scan_mode', 'priority', 'is_active', 'last_run_at', 'next_run_at', 'actions']
+    }
+  },
+  computed: {
+    shelfOptions() {
+      return [{ value: null, text: 'All shelves' }, ...this.shelves.map(s => ({ value: s.id, text: `${s.code} - ${s.name}` }))]
     }
   },
   created() { this.load() },
   methods: {
     async load() {
-      this.schedules = (await scansApi.schedules()).data
+      const [schedules, shelves] = await Promise.all([scansApi.schedules(), shelvesApi.list()])
+      this.schedules = schedules.data
+      this.shelves = shelves.data
     },
     async create() {
       const payload = { ...this.form }

@@ -5,6 +5,7 @@ import DashboardLayout from '../layouts/DashboardLayout.vue'
 import Login from '../views/Login.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Tanks from '../views/Tanks.vue'
+import Shelves from '../views/Shelves.vue'
 import ScanSchedules from '../views/ScanSchedules.vue'
 import ScanJobs from '../views/ScanJobs.vue'
 import Devices from '../views/Devices.vue'
@@ -13,6 +14,9 @@ import Camera from '../views/Camera.vue'
 import Detections from '../views/Detections.vue'
 import Harvest from '../views/Harvest.vue'
 import MqttLogs from '../views/MqttLogs.vue'
+import MqttConsole from '../views/MqttConsole.vue'
+import RecheckTasks from '../views/RecheckTasks.vue'
+import TrainingSamples from '../views/TrainingSamples.vue'
 import Settings from '../views/Settings.vue'
 
 Vue.use(VueRouter)
@@ -25,6 +29,7 @@ const routes = [
     meta: { requiresAuth: true },
     children: [
       { path: '', name: 'dashboard', component: Dashboard },
+      { path: 'shelves', name: 'shelves', component: Shelves },
       { path: 'tanks', name: 'tanks', component: Tanks },
       { path: 'scan-schedules', name: 'scan-schedules', component: ScanSchedules },
       { path: 'scan-jobs', name: 'scan-jobs', component: ScanJobs },
@@ -34,6 +39,9 @@ const routes = [
       { path: 'detections', name: 'detections', component: Detections },
       { path: 'harvest', name: 'harvest', component: Harvest },
       { path: 'mqtt-logs', name: 'mqtt-logs', component: MqttLogs },
+      { path: 'mqtt-console', name: 'mqtt-console', component: MqttConsole },
+      { path: 'recheck-tasks', name: 'recheck-tasks', component: RecheckTasks },
+      { path: 'training-samples', name: 'training-samples', component: TrainingSamples },
       { path: 'settings', name: 'settings', component: Settings }
     ]
   }

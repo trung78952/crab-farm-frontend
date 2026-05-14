@@ -7,6 +7,8 @@
         Server {{ serverOk ? "online" : "offline" }}
         <span class="mx-2">/</span>
         MQTT {{ mqttConnected ? "connected" : "unknown" }}
+        <span class="mx-2">/</span>
+        WS {{ realtimeConnected ? "connected" : "connecting" }}
       </div>
     </div>
     <div class="top-actions">
@@ -55,6 +57,9 @@ export default {
       const user = this.$store.getters.currentUser;
       return user ? `${user.username} / ${user.role}` : "anonymous";
     },
+    realtimeConnected() {
+      return this.$store.state.realtimeConnected
+    }
   },
   created() {
     this.loadHealth();
@@ -65,6 +70,7 @@ export default {
         const res = await api.get("/health");
         this.serverOk = res.data.status === "ok";
         this.mqttConnected = Boolean(res.data.mqtt_connected);
+        this.$store.commit('setSimulationMode', Boolean(res.data.simulation_mode))
       } catch (err) {
         this.serverOk = false;
       }

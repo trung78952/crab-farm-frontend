@@ -9,5 +9,8 @@ export default {
   },
   logout() {
     return api.post('/api/v1/auth/logout')
+  },
+  changePassword(payload) {
+    return api.post('/api/v1/auth/change-password', payload)
   }
 }

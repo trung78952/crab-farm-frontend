@@ -16,6 +16,9 @@ import Topbar from '../components/Topbar.vue'
 
 export default {
   name: 'DashboardLayout',
-  components: { Sidebar, Topbar }
+  components: { Sidebar, Topbar },
+  created() {
+    this.$store.dispatch('startRealtime')
+  }
 }
 </script>

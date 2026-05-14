@@ -1,5 +1,8 @@
 <template>
   <div>
+    <b-alert v-if="$store.state.simulationMode" show variant="warning" class="simulation-banner">
+      SIMULATION MODE - jobs are marked simulated and hardware success is not implied.
+    </b-alert>
     <b-row>
       <b-col md="3" sm="6"
         ><StatusCard
@@ -60,7 +63,7 @@
           <div class="panel-header">Recent Detections</div>
           <div class="panel-body">
             <DataTable
-              :items="detections.slice(0, 6)"
+              :items="realtimeDetections.slice(0, 6)"
               :fields="detectionFields"
             />
           </div>
@@ -76,7 +79,7 @@
         <div class="panel">
           <div class="panel-header">MQTT Logs</div>
           <div class="panel-body">
-            <DataTable :items="mqttLogs.slice(0, 6)" :fields="mqttFields" />
+            <DataTable :items="realtimeMqttLogs.slice(0, 6)" :fields="mqttFields" />
           </div>
         </div>
         <div class="panel">
@@ -145,10 +148,21 @@ export default {
       return this.tanks.filter((t) => t.status === "soft_shell").length;
     },
     currentScan() {
-      return this.jobs[0] ? this.jobs[0].status : "None";
+      const job = this.realtimeJobs[0] || this.jobs[0]
+      return job ? job.status : "None";
     },
     lastDetection() {
-      return this.detections[0] ? this.detections[0].class_name : "None";
+      const detection = this.realtimeDetections[0] || this.detections[0]
+      return detection ? detection.class_name : "None";
+    },
+    realtimeMqttLogs() {
+      return this.$store.state.mqttLogs.concat(this.mqttLogs)
+    },
+    realtimeDetections() {
+      return this.$store.state.detections.concat(this.detections)
+    },
+    realtimeJobs() {
+      return this.$store.state.scanJobs.concat(this.jobs)
     },
     consoleText() {
       const lines = [
@@ -185,3 +199,10 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.simulation-banner {
+  border-radius: 6px;
+  font-weight: 700;
+}
+</style>

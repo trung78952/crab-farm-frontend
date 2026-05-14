@@ -33,14 +33,14 @@ export default {
     return {
       jobs: [],
       selected: null,
-      jobFields: ['status', 'scan_mode', 'total_tanks', 'completed_tanks', 'started_at', 'completed_at', 'actions'],
-      itemFields: ['tank_id', 'status', 'image_id', 'detection_id', 'error_message', 'started_at', 'completed_at']
+      jobFields: ['status', 'job_type', 'shelf_id', 'scan_mode', 'priority', 'total_tanks', 'completed_tanks', 'failed_tanks', 'is_simulation', 'started_at', 'completed_at', 'actions'],
+      itemFields: ['tank_id', 'status', 'motion_command_id', 'camera_command_id', 'image_id', 'detection_id', 'error_message', 'started_at', 'completed_at']
     }
   },
   created() { this.load() },
   methods: {
     async load() {
-      this.jobs = (await scansApi.jobs()).data
+      this.jobs = (await scansApi.jobsV2()).data
       this.selected = this.jobs[0] || null
     },
     async runAll() {

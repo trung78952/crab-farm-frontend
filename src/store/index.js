@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import authApi from '../api/auth'
+import realtime from '../api/realtime'
 
 Vue.use(Vuex)
 
@@ -12,7 +13,13 @@ export default new Vuex.Store({
   state: {
     token: localStorage.getItem(tokenKey),
     user: JSON.parse(localStorage.getItem(userKey) || 'null'),
-    darkMode: localStorage.getItem(darkKey) !== 'false'
+    darkMode: localStorage.getItem(darkKey) !== 'false',
+    realtimeConnected: false,
+    events: [],
+    mqttLogs: [],
+    scanJobs: [],
+    detections: [],
+    simulationMode: false
   },
   getters: {
     isAuthenticated: state => Boolean(state.token),
@@ -40,6 +47,19 @@ export default new Vuex.Store({
       state.darkMode = enabled
       localStorage.setItem(darkKey, String(enabled))
       document.body.classList.toggle('light-mode', !enabled)
+    },
+    setRealtimeConnected(state, connected) {
+      state.realtimeConnected = connected
+    },
+    pushRealtimeEvent(state, event) {
+      state.events.unshift(event)
+      state.events = state.events.slice(0, 100)
+      if (event.event === 'mqtt_log_created') state.mqttLogs.unshift(event.data)
+      if (event.event === 'scan_job_created' || event.event === 'scan_job_updated') state.scanJobs.unshift(event.data)
+      if (event.event === 'detection_created') state.detections.unshift(event.data)
+    },
+    setSimulationMode(state, enabled) {
+      state.simulationMode = enabled
     }
   },
   actions: {
@@ -47,18 +67,28 @@ export default new Vuex.Store({
       document.body.classList.toggle('light-mode', !state.darkMode)
       if (state.token) {
         authApi.me().then(res => commit('setUser', res.data)).catch(() => commit('clearAuth'))
+        realtime.connect()
       }
     },
     async login({ commit }, credentials) {
       const res = await authApi.login(credentials)
       commit('setAuth', res.data)
+      realtime.connect()
       return res.data
     },
     logout({ commit }) {
       commit('clearAuth')
+      realtime.disconnect()
     },
     toggleDarkMode({ state, commit }) {
       commit('setDarkMode', !state.darkMode)
+    },
+    startRealtime({ commit }) {
+      realtime.onEvent(event => {
+        commit('setRealtimeConnected', true)
+        commit('pushRealtimeEvent', event)
+      })
+      realtime.connect()
     }
   }
 })

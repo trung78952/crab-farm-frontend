@@ -30,6 +30,7 @@ export default {
     return {
       items: [
         { to: "/", label: "Dashboard", icon: "fas fa-chart-line" },
+        { to: "/shelves", label: "Shelves", icon: "fas fa-layer-group" },
         { to: "/tanks", label: "Tanks", icon: "fas fa-water" },
         {
           to: "/scan-schedules",
@@ -46,7 +47,9 @@ export default {
           icon: "fas fa-magnifying-glass",
         },
         { to: "/harvest", label: "Harvest", icon: "fas fa-basket-shopping" },
-        { to: "/mqtt-logs", label: "MQTT Logs", icon: "fas fa-terminal" },
+        { to: "/mqtt-console", label: "MQTT Console", icon: "fas fa-terminal" },
+        { to: "/recheck-tasks", label: "Recheck Tasks", icon: "fas fa-rotate" },
+        { to: "/training-samples", label: "Training", icon: "fas fa-database" },
         { to: "/settings", label: "Settings", icon: "fas fa-gear" },
       ],
     };

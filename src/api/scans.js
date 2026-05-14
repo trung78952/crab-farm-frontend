@@ -10,5 +10,6 @@ export default {
   runAll() { return api.post('/api/v1/scans/run-all') },
   runTank(tankId) { return api.post(`/api/v1/scans/run-tank/${tankId}`) },
   jobs() { return api.get('/api/v1/scans/jobs') },
+  jobsV2() { return api.get('/api/v1/scan-jobs') },
   job(id) { return api.get(`/api/v1/scans/jobs/${id}`) }
 }

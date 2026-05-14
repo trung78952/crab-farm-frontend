@@ -2,7 +2,10 @@
   <div class="panel">
     <div class="panel-header d-flex justify-content-between align-items-center">
       <span>MQTT Logs</span>
-      <b-button size="sm" variant="outline-info" @click="load">Refresh</b-button>
+      <div>
+        <b-button size="sm" variant="outline-info" class="mr-1" to="/mqtt-console">Open Console</b-button>
+        <b-button size="sm" variant="outline-info" @click="load">Refresh</b-button>
+      </div>
     </div>
     <div class="panel-body">
       <DataTable :items="logs" :fields="fields">

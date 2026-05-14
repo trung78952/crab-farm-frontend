@@ -20,7 +20,7 @@
           <b-col v-for="image in images" :key="image.id" md="3" sm="6" class="mb-3">
             <div class="image-tile">
               <img :src="imageUrl(image.image_url)" alt="tank capture">
-              <div class="small mt-2 text-muted">{{ image.kind }} / {{ image.created_at }}</div>
+              <div class="small mt-2 text-muted">{{ image.kind }} / {{ formatDateTime(image.created_at) }}</div>
             </div>
           </b-col>
         </b-row>
@@ -31,6 +31,7 @@
 
 <script>
 import cameraApi from '../api/camera'
+import { formatDateTime } from '../utils/dateTime'
 
 export default {
   name: 'Camera',
@@ -39,6 +40,7 @@ export default {
   },
   created() { this.load() },
   methods: {
+    formatDateTime,
     imageUrl(path) {
       if (!path) return ''
       if (path.startsWith('http')) return path
