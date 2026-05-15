@@ -14,7 +14,7 @@
           <b-form-input v-model="form.password" type="password" autocomplete="current-password" required />
         </b-form-group>
         <b-button type="submit" variant="primary" block :disabled="busy">
-          {{ busy ? 'Signing in...' : 'Login' }}
+          {{ busy ? "Signing in..." : "Login" }}
         </b-button>
       </b-form>
     </div>
@@ -22,30 +22,32 @@
 </template>
 
 <script>
+import {create} from "axios";
+
 export default {
-  name: 'Login',
+  name: "Login",
   data() {
     return {
       busy: false,
-      error: '',
-      form: { username: 'admin', password: 'admin123' }
-    }
+      error: "",
+      form: {username: "admin", password: "admin123"},
+    };
   },
   methods: {
     async submit() {
-      this.busy = true
-      this.error = ''
+      this.busy = true;
+      this.error = "";
       try {
-        await this.$store.dispatch('login', this.form)
-        this.$router.push(this.$route.query.redirect || '/')
+        await this.$store.dispatch("login", this.form);
+        this.$router.push(this.$route.query.redirect || "/");
       } catch (err) {
-        this.error = err.response && err.response.data ? err.response.data.detail : 'Login failed'
+        this.error = err.response && err.response.data ? err.response.data.detail : "Login failed";
       } finally {
-        this.busy = false
+        this.busy = false;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>

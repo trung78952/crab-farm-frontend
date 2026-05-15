@@ -30,8 +30,8 @@ export default {
     return {
       items: [
         { to: "/", label: "Dashboard", icon: "fas fa-chart-line" },
-        { to: "/shelves", label: "Shelves", icon: "fas fa-layer-group" },
-        { to: "/tanks", label: "Tanks", icon: "fas fa-water" },
+        { to: "/shelves", label: "Farm Layout", icon: "fas fa-layer-group" },
+        { to: "/sensors", label: "Sensors", icon: "fas fa-gauge-high" },
         {
           to: "/scan-schedules",
           label: "Scan Schedules",

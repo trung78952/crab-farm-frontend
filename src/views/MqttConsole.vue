@@ -40,7 +40,9 @@
         <b-form-group label="Payload JSON">
           <b-form-textarea v-model="payloadText" rows="5" />
         </b-form-group>
-        <b-button variant="primary" @click="publish">Publish</b-button>
+        <b-button variant="primary" :disabled="publishBusy" @click="publish">
+          <b-spinner v-if="publishBusy" small /> Publish
+        </b-button>
       </div>
     </div>
   </div>
@@ -59,6 +61,8 @@ export default {
       selectedTopic: '',
       contains: '',
       direction: 'all',
+      publishBusy: false,
+      clearedAt: null,
       publishForm: { topic: 'farm/shelf/SHELF_01/motion/cmd', qos: 0, retain: false },
       payloadText: '{\n  "type": "home"\n}'
     }
@@ -70,10 +74,10 @@ export default {
     filteredLogs() {
       const term = this.contains.toLowerCase()
       return this.logs
-        .concat(this.$store.state.mqttLogs)
+        .concat(this.$store.state.mqttLogs.filter(log => !this.clearedAt || new Date(log.created_at) > this.clearedAt))
         .filter(log => !this.selectedTopic || log.topic === this.selectedTopic)
         .filter(log => this.direction === 'all' || log.direction === this.direction)
-        .filter(log => !term || log.topic.toLowerCase().includes(term))
+        .filter(log => !term || log.topic.toLowerCase().includes(term) || JSON.stringify(log.payload || {}).toLowerCase().includes(term))
         .slice(0, 300)
     }
   },
@@ -87,11 +91,18 @@ export default {
       this.topics = (await mqttConsoleApi.topics()).data
       this.logs = (await mqttConsoleApi.logs({ limit: 200, topic: this.selectedTopic || undefined, direction: this.direction === 'all' ? undefined : this.direction })).data
     },
-    clearLocal() { this.logs = [] },
+    clearLocal() {
+      this.logs = []
+      this.clearedAt = new Date()
+    },
     async publish() {
-      const payload = JSON.parse(this.payloadText)
-      await mqttConsoleApi.publish({ ...this.publishForm, payload })
-      await this.load()
+      this.publishBusy = true
+      try {
+        const payload = JSON.parse(this.payloadText)
+        await mqttConsoleApi.publish({ ...this.publishForm, payload })
+      } finally {
+        this.publishBusy = false
+      }
     }
   }
 }

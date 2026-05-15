@@ -19,7 +19,7 @@
         <b-row>
           <b-col v-for="image in images" :key="image.id" md="3" sm="6" class="mb-3">
             <div class="image-tile">
-              <img :src="imageUrl(image.image_url)" alt="tank capture">
+              <img :src="imageUrl(image.image_url)" alt="tank capture" />
               <div class="small mt-2 text-muted">{{ image.kind }} / {{ formatDateTime(image.created_at) }}</div>
             </div>
           </b-col>
@@ -30,37 +30,41 @@
 </template>
 
 <script>
-import cameraApi from '../api/camera'
-import { formatDateTime } from '../utils/dateTime'
+import cameraApi from "../api/camera";
+import {formatDateTime} from "../utils/dateTime";
 
 export default {
-  name: 'Camera',
+  name: "Camera",
   data() {
-    return { tankId: '', file: null, images: [] }
+    return {tankId: "", file: null, images: []};
   },
-  created() { this.load() },
+  created() {
+    this.load();
+  },
   methods: {
     formatDateTime,
     imageUrl(path) {
-      if (!path) return ''
-      if (path.startsWith('http')) return path
-      return `${process.env.VUE_APP_API_BASE_URL || 'http://localhost:8000'}${path}`
+      if (!path) return "";
+      if (path.startsWith("http")) return path;
+      return `${process.env.VUE_APP_API_BASE_URL || "http://localhost:8000"}${path}`;
     },
-    async load() { this.images = (await cameraApi.images()).data },
+    async load() {
+      this.images = (await cameraApi.images()).data;
+    },
     async capture() {
-      await cameraApi.capture(this.tankId)
-      this.$bvToast.toast('Capture command sent', { title: 'Camera', variant: 'info', solid: true })
+      await cameraApi.capture(this.tankId);
+      this.$bvToast.toast("Capture command sent", {title: "Camera", variant: "info", solid: true});
     },
     async upload() {
-      const form = new FormData()
-      form.append('tank_id', this.tankId)
-      form.append('file', this.file)
-      await cameraApi.upload(form)
-      this.file = null
-      await this.load()
-    }
-  }
-}
+      const form = new FormData();
+      form.append("tank_id", this.tankId);
+      form.append("file", this.file);
+      await cameraApi.upload(form);
+      this.file = null;
+      await this.load();
+    },
+  },
+};
 </script>
 
 <style scoped>

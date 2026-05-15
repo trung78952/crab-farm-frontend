@@ -8,17 +8,31 @@ const api = axios.create({
   timeout: 15000
 })
 
+function commitLoading(mutation) {
+  try {
+    const store = require('../store').default
+    store.commit(mutation)
+  } catch (err) {
+    // Store can be unavailable during initial module loading.
+  }
+}
+
 api.interceptors.request.use(config => {
   const token = localStorage.getItem(tokenKey)
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+  if (!config.skipGlobalLoading) commitLoading('incrementLoading')
   return config
 })
 
 api.interceptors.response.use(
-  response => response,
+  response => {
+    if (!response.config.skipGlobalLoading) commitLoading('decrementLoading')
+    return response
+  },
   error => {
+    if (error.config && !error.config.skipGlobalLoading) commitLoading('decrementLoading')
     if (error.response && error.response.status === 401) {
       localStorage.removeItem(tokenKey)
       localStorage.removeItem(userKey)

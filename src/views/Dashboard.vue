@@ -1,92 +1,45 @@
 <template>
   <div>
-    <b-alert v-if="$store.state.simulationMode" show variant="warning" class="simulation-banner">
-      SIMULATION MODE - jobs are marked simulated and hardware success is not implied.
-    </b-alert>
+    <b-alert v-if="$store.state.simulationMode" show variant="warning" class="simulation-banner"> SIMULATION MODE - scan jobs/items are marked simulated and hardware success is not implied. </b-alert>
+
     <b-row>
-      <b-col md="3" sm="6"
-        ><StatusCard
-          label="Server"
-          value="Online"
-          tone="ok"
-          detail="FastAPI reachable"
-      /></b-col>
-      <b-col md="3" sm="6"
-        ><StatusCard
-          label="MQTT"
-          :value="mqttState"
-          :tone="mqttTone"
-          detail="Broker bridge"
-      /></b-col>
-      <b-col md="3" sm="6"
-        ><StatusCard
-          label="Motion"
-          :value="motionState"
-          detail="Controller status"
-      /></b-col>
-      <b-col md="3" sm="6"
-        ><StatusCard
-          label="Camera"
-          :value="cameraState"
-          detail="Pi camera devices"
-      /></b-col>
-      <b-col md="3" sm="6"
-        ><StatusCard
-          label="Total Tanks"
-          :value="tanks.length"
-          detail="Registered tanks"
-      /></b-col>
-      <b-col md="3" sm="6"
-        ><StatusCard
-          label="Need Harvest"
-          :value="harvestReady"
-          tone="warn"
-          detail="Soft-shell status"
-      /></b-col>
-      <b-col md="3" sm="6"
-        ><StatusCard
-          label="Current Scan"
-          :value="currentScan"
-          detail="Latest scan job"
-      /></b-col>
-      <b-col md="3" sm="6"
-        ><StatusCard
-          label="Last Detection"
-          :value="lastDetection"
-          detail="Detection pipeline"
-      /></b-col>
+      <b-col md="3" sm="6"><StatusCard label="Server" :value="serverState" :tone="serverOk ? 'ok' : 'danger'" detail="FastAPI health" /></b-col>
+      <b-col md="3" sm="6"><StatusCard label="MQTT" :value="mqttState" :tone="mqttConnected ? 'ok' : 'warn'" detail="Broker bridge" /></b-col>
+      <b-col md="3" sm="6"><StatusCard label="WebSocket" :value="$store.state.realtimeConnected ? 'Connected' : 'Disconnected'" :tone="$store.state.realtimeConnected ? 'ok' : 'warn'" detail="Realtime events" /></b-col>
+      <b-col md="3" sm="6"><StatusCard label="Active Shelves" :value="activeShelves" detail="Operational shelves" /></b-col>
+      <b-col md="3" sm="6"><StatusCard label="Total Tanks" :value="allTanks.length" detail="Registered tanks" /></b-col>
+      <b-col md="3" sm="6"><StatusCard label="Normal / Molting" :value="`${statusCount('normal')} / ${statusCount('molting')}`" detail="Tank status" /></b-col>
+      <b-col md="3" sm="6"><StatusCard label="Soft / Error" :value="`${statusCount('soft_shell')} / ${statusCount('error')}`" tone="warn" detail="Needs attention" /></b-col>
+      <b-col md="3" sm="6"><StatusCard label="Open Sensor Alerts" :value="openAlerts.length" :tone="openAlerts.length ? 'warn' : 'ok'" detail="Water quality alerts" /></b-col>
     </b-row>
 
     <b-row>
       <b-col lg="6">
         <div class="panel">
-          <div class="panel-header">Recent Detections</div>
-          <div class="panel-body">
-            <DataTable
-              :items="realtimeDetections.slice(0, 6)"
-              :fields="detectionFields"
-            />
-          </div>
+          <div class="panel-header">Current Scan Jobs</div>
+          <div class="panel-body"><DataTable :items="allJobs.slice(0, 8)" :fields="jobFields" /></div>
         </div>
         <div class="panel">
-          <div class="panel-header">Recent Motion Commands</div>
-          <div class="panel-body">
-            <DataTable :items="commands.slice(0, 6)" :fields="commandFields" />
-          </div>
+          <div class="panel-header">Latest Sensor Readings</div>
+          <div class="panel-body"><DataTable :items="allReadings.slice(0, 8)" :fields="readingFields" /></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">Recent Detections</div>
+          <div class="panel-body"><DataTable :items="allDetections.slice(0, 8)" :fields="detectionFields" /></div>
         </div>
       </b-col>
       <b-col lg="6">
         <div class="panel">
-          <div class="panel-header">MQTT Logs</div>
-          <div class="panel-body">
-            <DataTable :items="realtimeMqttLogs.slice(0, 6)" :fields="mqttFields" />
-          </div>
+          <div class="panel-header">Auto Schedules Active</div>
+          <div class="panel-body"><DataTable :items="activeAutoSchedules.slice(0, 8)" :fields="scheduleFields" /></div>
         </div>
         <div class="panel">
-          <div class="panel-header">System Console</div>
-          <div class="panel-body">
-            <div class="console-panel">{{ consoleText }}</div>
-          </div>
+          <div class="panel-header">Recent MQTT Logs</div>
+          <div class="panel-body"><DataTable :items="allMqttLogs.slice(0, 8)" :fields="mqttFields" /></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">Open Sensor Alerts</div>
+          <div class="panel-body"><DataTable :items="openAlerts.slice(0, 8)" :fields="alertFields" /></div>
         </div>
       </b-col>
     </b-row>
@@ -95,83 +48,82 @@
 
 <script>
 import api from "../api/axios";
+import shelvesApi from "../api/shelves";
 import tanksApi from "../api/tanks";
-import devicesApi from "../api/devices";
 import detectionsApi from "../api/detections";
-import motionApi from "../api/motion";
 import scansApi from "../api/scans";
 import mqttLogsApi from "../api/mqttLogs";
+import sensorsApi from "../api/sensors";
 import StatusCard from "../components/StatusCard.vue";
 import DataTable from "../components/DataTable.vue";
 
 export default {
   name: "Dashboard",
-  components: { StatusCard, DataTable },
+  components: {StatusCard, DataTable},
   data() {
     return {
       health: null,
+      shelves: [],
       tanks: [],
-      devices: [],
       detections: [],
-      commands: [],
       jobs: [],
+      schedules: [],
       mqttLogs: [],
-      detectionFields: [
-        "tank_id",
-        "class_name",
-        "confidence",
-        "action",
-        "detected_at",
-      ],
-      commandFields: ["cmd_id", "command_type", "status", "created_at"],
+      readings: [],
+      alerts: [],
+      jobFields: ["status", "job_type", "total_tanks", "completed_tanks", "failed_tanks", "created_at"],
+      readingFields: ["sensor_id", "tank_id", "shelf_id", "value", "unit", "measured_at"],
+      detectionFields: ["tank_id", "class_name", "confidence", "action", "detected_at"],
+      scheduleFields: ["name", "tag", "schedule_type", "scan_mode", "auto_reason", "next_run_at", "run_count"],
       mqttFields: ["direction", "topic", "created_at"],
+      alertFields: ["sensor_id", "tank_id", "alert_type", "message", "status", "created_at"],
     };
   },
   computed: {
+    serverOk() {
+      return this.health && this.health.status === "ok";
+    },
+    serverState() {
+      return this.serverOk ? "Online" : "Offline";
+    },
+    mqttConnected() {
+      return Boolean(this.health && this.health.mqtt_connected);
+    },
     mqttState() {
-      return this.health && this.health.mqtt_connected
-        ? "Connected"
-        : "Unknown";
+      return this.mqttConnected ? "Connected" : "Unknown";
     },
-    mqttTone() {
-      return this.health && this.health.mqtt_connected ? "ok" : "warn";
+    allShelves() {
+      return this.mergeById(this.shelves, this.$store.state.shelves);
     },
-    motionState() {
-      const item = this.devices.find((d) => d.type === "esp32_motion");
-      return item ? item.status : "Unknown";
+    allTanks() {
+      return this.mergeById(this.tanks, this.$store.state.tanks);
     },
-    cameraState() {
-      const item = this.devices.find((d) => d.type === "pi_camera");
-      return item ? item.status : "Unknown";
+    allJobs() {
+      return this.mergeById(this.jobs, this.$store.state.scanJobs);
     },
-    harvestReady() {
-      return this.tanks.filter((t) => t.status === "soft_shell").length;
+    allSchedules() {
+      return this.mergeById(this.schedules, this.$store.state.scanSchedules);
     },
-    currentScan() {
-      const job = this.realtimeJobs[0] || this.jobs[0]
-      return job ? job.status : "None";
+    allDetections() {
+      return this.mergeById(this.detections, this.$store.state.detections);
     },
-    lastDetection() {
-      const detection = this.realtimeDetections[0] || this.detections[0]
-      return detection ? detection.class_name : "None";
+    allMqttLogs() {
+      return this.mergeById(this.mqttLogs, this.$store.state.mqttLogs);
     },
-    realtimeMqttLogs() {
-      return this.$store.state.mqttLogs.concat(this.mqttLogs)
+    allReadings() {
+      return this.mergeById(this.readings, this.$store.state.sensorReadings);
     },
-    realtimeDetections() {
-      return this.$store.state.detections.concat(this.detections)
+    allAlerts() {
+      return this.mergeById(this.alerts, this.$store.state.sensorAlerts);
     },
-    realtimeJobs() {
-      return this.$store.state.scanJobs.concat(this.jobs)
+    activeShelves() {
+      return this.allShelves.filter((shelf) => shelf.status === "active").length;
     },
-    consoleText() {
-      const lines = [
-        "[system] dashboard online",
-        `[tanks] ${this.tanks.length} tanks loaded`,
-        `[scan] ${this.jobs.length} jobs indexed`,
-        `[mqtt] ${this.mqttLogs.length} recent messages`,
-      ];
-      return lines.join("\n");
+    openAlerts() {
+      return this.allAlerts.filter((alert) => alert.status === "open");
+    },
+    activeAutoSchedules() {
+      return this.allSchedules.filter((schedule) => schedule.tag === "AUTO" && schedule.is_active);
     },
   },
   created() {
@@ -179,22 +131,28 @@ export default {
   },
   methods: {
     async load() {
-      const results = await Promise.allSettled([
-        api.get("/health"),
-        tanksApi.list(),
-        devicesApi.list(),
-        detectionsApi.list(),
-        motionApi.commands(),
-        scansApi.jobs(),
-        mqttLogsApi.list(50),
-      ]);
+      const results = await Promise.allSettled([api.get("/health", {skipGlobalLoading: true}), shelvesApi.list(), tanksApi.list(), detectionsApi.list(), scansApi.jobsV2(), scansApi.schedules(), mqttLogsApi.list(100), sensorsApi.readings({limit: 100}), sensorsApi.alerts()]);
       this.health = results[0].value && results[0].value.data;
-      this.tanks = results[1].value ? results[1].value.data : [];
-      this.devices = results[2].value ? results[2].value.data : [];
+      this.shelves = results[1].value ? results[1].value.data : [];
+      this.tanks = results[2].value ? results[2].value.data : [];
       this.detections = results[3].value ? results[3].value.data : [];
-      this.commands = results[4].value ? results[4].value.data : [];
-      this.jobs = results[5].value ? results[5].value.data : [];
+      this.jobs = results[4].value ? results[4].value.data : [];
+      this.schedules = results[5].value ? results[5].value.data : [];
       this.mqttLogs = results[6].value ? results[6].value.data : [];
+      this.readings = results[7].value ? results[7].value.data : [];
+      this.alerts = results[8].value ? results[8].value.data : [];
+      this.$store.commit("setSimulationMode", Boolean(this.health && this.health.simulation_mode));
+    },
+    statusCount(status) {
+      return this.allTanks.filter((tank) => tank.status === status).length;
+    },
+    mergeById(base, realtime) {
+      const map = new Map();
+      [...base, ...realtime].forEach((item) => {
+        if (!item || !item.id) return;
+        map.set(item.id, {...(map.get(item.id) || {}), ...item});
+      });
+      return Array.from(map.values());
     },
   },
 };

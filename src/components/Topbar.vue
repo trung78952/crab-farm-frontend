@@ -1,5 +1,6 @@
 <template>
   <header class="topbar">
+    <!-- <div v-if="isLoading" class="top-loading" /> -->
     <div>
       <div class="app-title">Crab Farm AI</div>
       <div class="status-line">
@@ -9,6 +10,7 @@
         MQTT {{ mqttConnected ? "connected" : "unknown" }}
         <span class="mx-2">/</span>
         WS {{ realtimeConnected ? "connected" : "connecting" }}
+        <!-- <span v-if="isLoading" class="ml-2"><b-spinner small type="grow" /> Loading</span> -->
       </div>
     </div>
     <div class="top-actions">
@@ -19,15 +21,15 @@
       <!-- <span class="user-pill">{{ userLabel }}</span> -->
       <b-dropdown variant="outline-light">
         <template #button-content>
-          <span >
+          <span>
             <i class="fa-solid fa-user"></i>
           </span>
           {{ userLabel }}
         </template>
-        <b-dropdown-item @click="logout"
-          ><i class="fa-solid fa-arrow-left-from-bracket"></i>
-          Logout</b-dropdown-item
-        >
+        <b-dropdown-item @click="logout">
+          <i class="fa-solid fa-arrow-left-from-bracket"></i>
+          Logout
+        </b-dropdown-item>
       </b-dropdown>
       <!-- <b-button size="sm" variant="outline-light" @click="logout">
         Logout
@@ -42,7 +44,7 @@ import EmergencyStopButton from "./EmergencyStopButton.vue";
 
 export default {
   name: "Topbar",
-  components: { EmergencyStopButton },
+  components: {EmergencyStopButton},
   data() {
     return {
       serverOk: false,
@@ -58,8 +60,11 @@ export default {
       return user ? `${user.username} / ${user.role}` : "anonymous";
     },
     realtimeConnected() {
-      return this.$store.state.realtimeConnected
-    }
+      return this.$store.state.realtimeConnected;
+    },
+    isLoading() {
+      return this.$store.getters.isLoading;
+    },
   },
   created() {
     this.loadHealth();
@@ -67,17 +72,17 @@ export default {
   methods: {
     async loadHealth() {
       try {
-        const res = await api.get("/health");
+        const res = await api.get("/health", {skipGlobalLoading: true});
         this.serverOk = res.data.status === "ok";
         this.mqttConnected = Boolean(res.data.mqtt_connected);
-        this.$store.commit('setSimulationMode', Boolean(res.data.simulation_mode))
+        this.$store.commit("setSimulationMode", Boolean(res.data.simulation_mode));
       } catch (err) {
         this.serverOk = false;
       }
     },
     logout() {
       this.$store.dispatch("logout");
-      this.$router.push({ name: "login" });
+      this.$router.push({name: "login"});
     },
   },
 };
@@ -92,6 +97,16 @@ export default {
   justify-content: space-between;
   min-height: 64px;
   padding: 10px 18px;
+  position: relative;
+}
+
+.top-loading {
+  background: #44d7cf;
+  height: 2px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 
 .app-title {

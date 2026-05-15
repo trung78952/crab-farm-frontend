@@ -1,67 +1,69 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import store from '../store'
-import DashboardLayout from '../layouts/DashboardLayout.vue'
-import Login from '../views/Login.vue'
-import Dashboard from '../views/Dashboard.vue'
-import Tanks from '../views/Tanks.vue'
-import Shelves from '../views/Shelves.vue'
-import ScanSchedules from '../views/ScanSchedules.vue'
-import ScanJobs from '../views/ScanJobs.vue'
-import Devices from '../views/Devices.vue'
-import Motion from '../views/Motion.vue'
-import Camera from '../views/Camera.vue'
-import Detections from '../views/Detections.vue'
-import Harvest from '../views/Harvest.vue'
-import MqttLogs from '../views/MqttLogs.vue'
-import MqttConsole from '../views/MqttConsole.vue'
-import RecheckTasks from '../views/RecheckTasks.vue'
-import TrainingSamples from '../views/TrainingSamples.vue'
-import Settings from '../views/Settings.vue'
+import Vue from "vue";
+import VueRouter from "vue-router";
+import store from "../store";
+import DashboardLayout from "../layouts/DashboardLayout.vue";
+import Login from "../views/Login.vue";
+import Dashboard from "../views/Dashboard.vue";
+import FarmLayout from "../views/FarmLayout.vue";
+import ScanSchedules from "../views/ScanSchedules.vue";
+import ScanJobs from "../views/ScanJobs.vue";
+import Sensors from "../views/Sensors.vue";
+import Devices from "../views/Devices.vue";
+import Motion from "../views/Motion.vue";
+import Camera from "../views/Camera.vue";
+import Detections from "../views/Detections.vue";
+import Harvest from "../views/Harvest.vue";
+import MqttLogs from "../views/MqttLogs.vue";
+import MqttConsole from "../views/MqttConsole.vue";
+import RecheckTasks from "../views/RecheckTasks.vue";
+import TrainingSamples from "../views/TrainingSamples.vue";
+import Settings from "../views/Settings.vue";
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes = [
-  { path: '/login', name: 'login', component: Login, meta: { public: true } },
+  {path: "/login", name: "login", component: Login, meta: {public: true}},
   {
-    path: '/',
+    path: "/",
     component: DashboardLayout,
-    meta: { requiresAuth: true },
+    meta: {requiresAuth: true},
     children: [
-      { path: '', name: 'dashboard', component: Dashboard },
-      { path: 'shelves', name: 'shelves', component: Shelves },
-      { path: 'tanks', name: 'tanks', component: Tanks },
-      { path: 'scan-schedules', name: 'scan-schedules', component: ScanSchedules },
-      { path: 'scan-jobs', name: 'scan-jobs', component: ScanJobs },
-      { path: 'devices', name: 'devices', component: Devices },
-      { path: 'motion', name: 'motion', component: Motion },
-      { path: 'camera', name: 'camera', component: Camera },
-      { path: 'detections', name: 'detections', component: Detections },
-      { path: 'harvest', name: 'harvest', component: Harvest },
-      { path: 'mqtt-logs', name: 'mqtt-logs', component: MqttLogs },
-      { path: 'mqtt-console', name: 'mqtt-console', component: MqttConsole },
-      { path: 'recheck-tasks', name: 'recheck-tasks', component: RecheckTasks },
-      { path: 'training-samples', name: 'training-samples', component: TrainingSamples },
-      { path: 'settings', name: 'settings', component: Settings }
-    ]
-  }
-]
+      {path: "", name: "dashboard", component: Dashboard},
+      {path: "shelves", name: "shelves", component: FarmLayout},
+      {path: "tanks", name: "tanks", component: FarmLayout},
+      {path: "sensors", name: "sensors", component: Sensors},
+      {path: "scan-schedules", name: "scan-schedules", component: ScanSchedules},
+      {path: "scan-jobs", name: "scan-jobs", component: ScanJobs},
+      {path: "devices", name: "devices", component: Devices},
+      {path: "motion", name: "motion", component: Motion},
+      {path: "camera", name: "camera", component: Camera},
+      {path: "detections", name: "detections", component: Detections},
+      {path: "harvest", name: "harvest", component: Harvest},
+      {path: "mqtt-logs", name: "mqtt-logs", component: MqttLogs},
+      {path: "mqtt-console", name: "mqtt-console", component: MqttConsole},
+      {path: "recheck-tasks", name: "recheck-tasks", component: RecheckTasks},
+      {path: "training-samples", name: "training-samples", component: TrainingSamples},
+      {path: "settings", name: "settings", component: Settings},
+    ],
+  },
+];
 
 const router = new VueRouter({
-  mode: 'history',
-  routes
-})
+  mode: "history",
+  routes,
+});
 
 router.beforeEach((to, from, next) => {
+  document.title = "Farm | " + (to.name ? to.name.charAt(0).toUpperCase() + to.name.slice(1).replace(/-/g, " ") : "Dashboard");
   if (to.meta.public) {
-    next()
-    return
+    next();
+    return;
   }
   if (!store.getters.isAuthenticated) {
-    next({ name: 'login', query: { redirect: to.fullPath } })
-    return
+    next({name: "login", query: {redirect: to.fullPath}});
+    return;
   }
-  next()
-})
+  next();
+});
 
-export default router
+export default router;
