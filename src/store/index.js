@@ -38,6 +38,7 @@ export default new Vuex.Store({
     sensorReadings: [],
     sensorAlerts: [],
     motionCommands: [],
+    devices: [],
     harvests: [],
     simulationMode: false
   },
@@ -107,6 +108,7 @@ export default new Vuex.Store({
       }
       if (event.event === 'sensor_alert_created') upsertById(state.sensorAlerts, data)
       if (event.event === 'motion_command_created' || event.event === 'motion_command_updated') upsertById(state.motionCommands, data)
+      if (event.event === 'device_status_updated') upsertById(state.devices, data, false)
       if (event.event === 'harvest_updated') upsertById(state.harvests, data)
     },
     setSimulationMode(state, enabled) {
@@ -117,13 +119,18 @@ export default new Vuex.Store({
     bootstrap({ state, commit, dispatch }) {
       document.body.classList.toggle('light-mode', !state.darkMode)
       if (state.token) {
-        authApi.me().then(res => commit('setUser', res.data)).catch(() => commit('clearAuth'))
+        authApi.me().then(res => commit('setUser', res.data)).catch(() => {
+          commit('clearAuth')
+          commit('setRealtimeConnected', false)
+          realtime.disconnect()
+        })
         dispatch('startRealtime')
       }
     },
     async login({ commit, dispatch }, credentials) {
       const res = await authApi.login(credentials)
       commit('setAuth', res.data)
+      realtime.disconnect()
       dispatch('startRealtime')
       return res.data
     },
@@ -136,12 +143,18 @@ export default new Vuex.Store({
       commit('setDarkMode', !state.darkMode)
     },
     startRealtime({ state, commit }) {
-      if (!state.token) return
-      if (!state.realtimeStarted) {
+      if (!state.token) {
+        commit('setRealtimeConnected', false)
+        realtime.disconnect()
+        return
+      }
+      const realtimeState = realtime.getState()
+      if (!state.realtimeStarted || realtimeState.listenerCount === 0 || realtimeState.statusListenerCount === 0) {
         realtime.onStatus(connected => {
           commit('setRealtimeConnected', connected)
         })
         realtime.onEvent(event => {
+          console.log(event);
           commit('setRealtimeConnected', true)
           commit('pushRealtimeEvent', event)
         })

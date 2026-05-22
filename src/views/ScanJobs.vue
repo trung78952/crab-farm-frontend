@@ -11,7 +11,7 @@
         <b-alert v-if="$store.state.simulationMode" show variant="warning" class="mb-3">
           Simulation Mode: jobs/items finish as simulated, not success.
         </b-alert>
-        <DataTable :items="jobs" :fields="jobFields">
+        <DataTable style="height: 80vh;" :items="jobs" :fields="jobFields">
           <template #actions="{ item }">
             <b-button size="sm" variant="outline-info" @click="selected = item">Details</b-button>
           </template>
