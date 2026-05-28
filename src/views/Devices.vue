@@ -45,6 +45,10 @@
             <a v-if="item.stream_url" :href="item.stream_url" target="_blank" rel="noopener">{{ item.stream_url }}</a>
             <span v-else class="text-muted">-</span>
           </template>
+          <template #motion_target="{ item }">
+            <span v-if="item.motion_target">{{ item.motion_target }}</span>
+            <span v-else class="text-muted">-</span>
+          </template>
           <template #metadata="{ item }">
             <b-button size="sm" variant="outline-info" @click="showMetadata(item)">
               <i class="fas fa-code mr-1"></i>JSON
@@ -208,6 +212,8 @@ export default {
         { key: "token_status", label: "token" },
         { key: "token_preview", label: "preview" },
         "token_last_used_at",
+        { key: "motion_target", label: "motion target" },
+        "protocol",
         "mqtt_client_id",
         "stream_url",
         "last_seen_at",
@@ -228,6 +234,8 @@ export default {
           shelf_code: this.shelfCode(device.shelf_id),
           effective_status: this.effectiveStatus(device),
           token_status: this.tokenStatus(device),
+          motion_target: this.motionTarget(device),
+          protocol: device.metadata && device.metadata.protocol ? device.metadata.protocol : "-",
           latest_status: device.metadata && device.metadata.latest_status ? device.metadata.latest_status : "-",
         }))
         .filter((device) => !this.filters.type || device.type === this.filters.type)
@@ -469,6 +477,13 @@ export default {
       if (status === "Active") return "success";
       if (status === "Revoked") return "danger";
       return "secondary";
+    },
+    motionTarget(device) {
+      if (!device || device.type !== "fluidnc_controller") return "";
+      const metadata = device.metadata || {};
+      const host = metadata.ip || metadata.host;
+      const port = metadata.port || 23;
+      return host ? `${host}:${port}` : "";
     },
     mqttHost() {
       return process.env.VUE_APP_MQTT_HOST || window.location.hostname || "localhost";
